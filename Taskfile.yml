@@ -1,0 +1,13 @@
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+  install:
+    cmds:
+      - uv sync
+  run:
+    cmds:
+      - uv run main.py
