@@ -20,7 +20,7 @@ def main():
     contents=prompt,
     config=types.GenerateContentConfig(
         tools=[types.Tool(google_maps=types.GoogleMaps())],
-        response_mime_type="application/json",
+        # response_mime_type="application/json",
         response_json_schema=Dataset.model_json_schema(),
     ),
   )
