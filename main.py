@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 from models import Dataset
 from pathlib import Path
 
@@ -17,10 +18,11 @@ def main():
   response = client.models.generate_content(
     model="gemini-2.5-flash",
     contents=prompt,
-    config={
-      "response_mime_type": "application/json",
-      "response_json_schema": Dataset.model_json_schema(),
-    },
+    config=types.GenerateContentConfig(
+        tools=[types.Tool(google_maps=types.GoogleMaps())],
+        response_mime_type="application/json",
+        response_json_schema=Dataset.model_json_schema(),
+    ),
   )
 
   dataset = Dataset.model_validate_json(response.text)
