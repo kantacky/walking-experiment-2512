@@ -27,6 +27,8 @@ def generate():
   dataset = Dataset.model_validate_json(response.text)
 
   timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+  data_dir = Path("data")
+  data_dir.mkdir(parents=True, exist_ok=True)
   output_path = Path("data") / f"{timestamp}.json"
   output_path.write_text(dataset.model_dump_json(indent=2), encoding="utf-8")
   print(f"Dataset saved to {output_path}")
