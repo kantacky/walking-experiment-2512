@@ -14,3 +14,6 @@ tasks:
   generate:
     cmds:
       - uv run generate.py
+  preview:
+    cmds:
+      - open preview.html
