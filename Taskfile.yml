@@ -11,3 +11,6 @@ tasks:
   run:
     cmds:
       - uv run main.py
+  generate:
+    cmds:
+      - uv run generate.py
