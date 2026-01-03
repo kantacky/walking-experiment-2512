@@ -14,6 +14,22 @@ tasks:
   generate:
     cmds:
       - uv run generate.py
+  cluster:
+    desc: Run bipartite clustering analysis
+    cmds:
+      - uv run python bipartite_clustering.py
+  visualize:
+    desc: Visualize clustering results
+    deps:
+      - cluster
+    cmds:
+      - uv run python visualize_clusters.py
+  analyze:
+    desc: Run clustering and visualization
+    deps:
+      - cluster
+    cmds:
+      - uv run python visualize_clusters.py
   preview:
     cmds:
       - open preview.html
