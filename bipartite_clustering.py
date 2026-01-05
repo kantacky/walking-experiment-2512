@@ -397,29 +397,47 @@ def main():
     メイン関数
     """
     import os
+    import argparse
+
+    # コマンドライン引数のパース
+    parser = argparse.ArgumentParser(description='二部グラフの重複を考慮したクラスタリング')
+    parser.add_argument('--data', type=str,
+                       default="/Users/kantacky/Developer/walking-experiment-2512/data/20251231T042013Z.json",
+                       help='入力データファイルのパス (JSON形式)')
+    parser.add_argument('--output-dir', type=str,
+                       default="/Users/kantacky/Developer/walking-experiment-2512/output",
+                       help='出力ディレクトリのパス')
+    parser.add_argument('--n-clusters', type=int, default=4,
+                       help='クラスター数 (デフォルト: 4)')
+    parser.add_argument('--max-iter', type=int, default=50,
+                       help='最大反復回数 (デフォルト: 50)')
+    parser.add_argument('--use-trips', action='store_true', default=True,
+                       help='sessionをトリップとして扱う (デフォルト: True)')
+    parser.add_argument('--use-users', dest='use_trips', action='store_false',
+                       help='user_idを訪問者として扱う')
+    parser.add_argument('--random-state', type=int, default=42,
+                       help='乱数シード (デフォルト: 42)')
+
+    args = parser.parse_args()
 
     # 出力ディレクトリの作成
-    output_dir = "/Users/kantacky/Developer/walking-experiment-2512/output"
-    os.makedirs(output_dir, exist_ok=True)
-
-    # データファイルのパス
-    data_path = "/Users/kantacky/Developer/walking-experiment-2512/data/20251231T042013Z.json"
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # モデルの初期化
-    model = BipartiteClusteringModel(n_clusters=4)
+    model = BipartiteClusteringModel(n_clusters=args.n_clusters)
 
     # データの読み込み
-    model.load_data(data_path)
+    model.load_data(args.data, use_trips=args.use_trips)
 
     # クラスタリングの実行
-    model.fit(max_iter=50, random_state=42)
+    model.fit(max_iter=args.max_iter, random_state=args.random_state)
 
     # 結果の表示
     model.print_results()
 
     # 結果をJSONファイルに保存
     results = model.get_results()
-    output_path = os.path.join(output_dir, "clustering_results.json")
+    output_path = os.path.join(args.output_dir, "clustering_results.json")
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
 
