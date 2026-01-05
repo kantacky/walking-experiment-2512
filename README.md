@@ -29,49 +29,68 @@ uv sync
 
 ## 使用方法
 
-### データ生成
+### 1. データ生成
 
 ```bash
 task generate
 ```
 
-### クラスタリングの実行
+サンプルデータを生成します。生成されたデータは `data/` ディレクトリに保存されます。
+
+### 2. クラスタリングの実行
+
+基本的な使い方:
 
 ```bash
 task cluster
 ```
 
-または
+引数を指定する場合（`--` の後に引数を追加）:
 
 ```bash
-uv run python bipartite_clustering.py
+task cluster -- --n-clusters 5 --max-iter 100
 ```
 
-生成されるファイル（`output/`ディレクトリ内）:
+#### クラスタリングのオプション
+
+| オプション | 説明 | デフォルト値 |
+|-----------|------|------------|
+| `--data PATH` | 入力データファイルのパス | `data/20251231T042013Z.json` |
+| `--output-dir PATH` | 出力ディレクトリのパス | `output` |
+| `--n-clusters N` | クラスター数 | `4` |
+| `--max-iter N` | 最大反復回数 | `50` |
+| `--use-trips` | sessionをトリップとして扱う | `True` (デフォルト) |
+| `--use-users` | user_idを訪問者として扱う | `False` |
+| `--random-state N` | 乱数シード | `42` |
+
+使用例:
+
+```bash
+# クラスター数を5に設定
+task cluster -- --n-clusters 5
+
+# user_idを訪問者として扱う
+task cluster -- --use-users
+
+# 複数のオプションを組み合わせ
+task cluster -- --n-clusters 6 --max-iter 100 --random-state 123
+```
+
+生成されるファイル（`output/` ディレクトリ内）:
 - `clustering_results.json`: クラスタリング結果
 
-### 可視化
+### 3. 可視化
 
 ```bash
 task visualize
 ```
 
-または
+**注意**: このタスクは自動的にクラスタリングを実行してから可視化します。
 
-```bash
-uv run python visualize_clusters.py
-```
-
-生成されるファイル（`output/`ディレクトリ内）:
+生成されるファイル（`output/` ディレクトリ内）:
 - `cluster_distribution.png`: クラスター別の観光スポット数とトリップ数
 - `category_distribution.png`: クラスター別のカテゴリ分布（ヒートマップ）
 - `secret_spots_cluster3.png`: 個人的穴場の可視化
-
-### クラスタリングと可視化を一度に実行
-
-```bash
-task analyze
-```
 
 ## 数理モデル
 
