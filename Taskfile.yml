@@ -1,35 +1,38 @@
 version: "3"
 
+vars:
+  PYTHON: uv run
+
 tasks:
   default:
+    desc: Show all available tasks
     cmds:
-      - task --list
+      - task --list-all
     silent: true
   install:
+    desc: Install project dependencies
     cmds:
       - uv sync
   run:
+    desc: Run the main application
     cmds:
-      - uv run main.py
+      - "{{.PYTHON}} main.py"
   generate:
+    desc: Generate data
     cmds:
-      - uv run generate.py
+      - "{{.PYTHON}} generate.py"
   cluster:
     desc: Run bipartite clustering analysis
     cmds:
-      - uv run python bipartite_clustering.py
+      - "{{.PYTHON}} bipartite_clustering.py {{.CLI_ARGS}}"
   visualize:
     desc: Visualize clustering results
     deps:
       - cluster
     cmds:
-      - uv run python visualize_clusters.py
-  analyze:
-    desc: Run clustering and visualization
-    deps:
-      - cluster
-    cmds:
-      - uv run python visualize_clusters.py
+      - "{{.PYTHON}} visualize_clusters.py"
   preview:
+    desc: Open preview HTML in browser
     cmds:
       - open preview.html
+
