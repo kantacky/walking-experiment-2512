@@ -18,12 +18,6 @@
 ## セットアップ
 
 ```bash
-task install
-```
-
-または
-
-```bash
 uv sync
 ```
 
@@ -32,7 +26,7 @@ uv sync
 ### 1. データ生成
 
 ```bash
-task generate
+uv run generate
 ```
 
 サンプルデータを生成します。生成されたデータは `data/` ディレクトリに保存されます。
@@ -42,13 +36,13 @@ task generate
 基本的な使い方:
 
 ```bash
-task cluster
+uv run cluster
 ```
 
-引数を指定する場合（`--` の後に引数を追加）:
+引数を指定する場合:
 
 ```bash
-task cluster -- --n-clusters 5 --max-iter 100
+uv run cluster --n-clusters 5 --max-iter 100
 ```
 
 #### クラスタリングのオプション
@@ -67,13 +61,13 @@ task cluster -- --n-clusters 5 --max-iter 100
 
 ```bash
 # クラスター数を5に設定
-task cluster -- --n-clusters 5
+uv run cluster --n-clusters 5
 
 # user_idを訪問者として扱う
-task cluster -- --use-users
+uv run cluster --use-users
 
 # 複数のオプションを組み合わせ
-task cluster -- --n-clusters 6 --max-iter 100 --random-state 123
+uv run cluster --n-clusters 6 --max-iter 100 --random-state 123
 ```
 
 生成されるファイル（`output/` ディレクトリ内）:
@@ -82,10 +76,10 @@ task cluster -- --n-clusters 6 --max-iter 100 --random-state 123
 ### 3. 可視化
 
 ```bash
-task visualize
+uv run visualize
 ```
 
-**注意**: このタスクは自動的にクラスタリングを実行してから可視化します。
+**注意**: このコマンドは自動的にクラスタリングを実行してから可視化します。
 
 生成されるファイル（`output/` ディレクトリ内）:
 - `cluster_distribution.png`: クラスター別の観光スポット数とトリップ数
