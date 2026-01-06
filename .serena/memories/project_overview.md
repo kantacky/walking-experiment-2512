@@ -1,0 +1,1 @@
+Python implementation of a research paper on simultaneous clustering of tourist spots and visitors using mobile location data. The project uses greedy optimization algorithms to extract bipartite graph clusters and identify hidden gem spots for specific visitor groups.
