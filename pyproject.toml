@@ -13,3 +13,12 @@ dependencies = [
     "scipy>=1.15.2",
     "seaborn>=0.13.2",
 ]
+
+[tool.uv]
+package = true
+
+[project.scripts]
+generate = "walking.generate:main"
+cluster = "walking.bipartite_clustering:main"
+visualize = "walking.visualize_clusters:main"
+
