@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walking Experiment Data Viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+        .legend.visible {
+            display: block;
+        }
+        .legend h4 {
+            margin: 0 0 10px 0;
+        }
+        .legend-item {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #333;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 60px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .controls button {
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .controls input[type="file"] {
+            margin: 10px 0;
+            padding: 5px;
+            width: 100%;
+            font-size: 12px;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">データを読み込んでいます...</div>
+    <div id="map"></div>
+
+    <div class="controls">
+        <input type="file" id="fileUpload" accept=".json" multiple onchange="handleFileUpload(event)">
+        <div style="margin-top: 10px; font-size: 12px;">
+            <div id="markerCount">マーカー数: 0</div>
+            <div id="uploadedCount">アップロード済み: 0ファイル</div>
+        </div>
+    </div>
+
+    <div class="legend" id="legend">
+        <h4>カテゴリ</h4>
+        <div id="legendContent"></div>
+    </div>
+
+    <script>
+        // カテゴリごとの色設定
+        const categoryColors = {
+            'building': '#e74c3c',
+            'landscape': '#3498db',
+            'plant': '#2ecc71',
+            'vehicle': '#f39c12',
+            'person': '#9b59b6',
+            'default': '#95a5a6'
+        };
+
+        // 地図の初期化
+        const map = L.map('map').setView([41.79, 140.745], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // マーカーを管理するレイヤーグループ
+        let markersLayer = L.layerGroup().addTo(map);
+
+        // アップロードされたファイルを保存
+        let uploadedFiles = [];
+
+        // データを地図上にプロット
+        function plotData(sessions, filename, categoriesSet) {
+            let markerCount = 0;
+
+            sessions.forEach(session => {
+                if (session.records) {
+                    session.records.forEach(record => {
+                        const lat = record.latitude;
+                        const lon = record.longitude;
+                        const category = record.category || 'unknown';
+                        const color = categoryColors[category] || categoryColors['default'];
+
+                        // カテゴリを収集
+                        if (categoriesSet) {
+                            categoriesSet.add(category);
+                        }
+
+                        const marker = L.circleMarker([lat, lon], {
+                            radius: 6,
+                            fillColor: color,
+                            color: '#000',
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.7
+                        });
+
+                        const popupContent = `
+                            <strong>ファイル:</strong> ${filename}<br>
+                            <strong>セッションID:</strong> ${session.id}<br>
+                            <strong>カテゴリ:</strong> ${category}<br>
+                            <strong>緯度:</strong> ${lat}<br>
+                            <strong>経度:</strong> ${lon}<br>
+                            <strong>タイムスタンプ:</strong> ${record.timestamp}
+                        `;
+
+                        marker.bindPopup(popupContent);
+                        marker.addTo(markersLayer);
+                        markerCount++;
+                    });
+                }
+            });
+
+            return markerCount;
+        }
+
+        // レジェンドを更新
+        function updateLegend(categories) {
+            const legend = document.getElementById('legend');
+            const legendContent = document.getElementById('legendContent');
+            legendContent.innerHTML = '';
+
+            if (categories.size === 0) {
+                legend.classList.remove('visible');
+                return;
+            }
+
+            // カテゴリをソート
+            const sortedCategories = Array.from(categories).sort();
+
+            sortedCategories.forEach(category => {
+                const color = categoryColors[category] || categoryColors['default'];
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+
+                const legendColor = document.createElement('div');
+                legendColor.className = 'legend-color';
+                legendColor.style.background = color;
+
+                const legendText = document.createElement('span');
+                legendText.textContent = category;
+
+                legendItem.appendChild(legendColor);
+                legendItem.appendChild(legendText);
+                legendContent.appendChild(legendItem);
+            });
+
+            // レジェンドを表示
+            legend.classList.add('visible');
+        }
+
+        // 地図をクリア
+        function clearMap() {
+            markersLayer.clearLayers();
+            document.getElementById('markerCount').textContent = 'マーカー数: 0';
+            const legend = document.getElementById('legend');
+            const legendContent = document.getElementById('legendContent');
+            legendContent.innerHTML = '';
+            legend.classList.remove('visible');
+        }
+
+        // ファイルアップロードを処理
+        async function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            clearMap();
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+
+            uploadedFiles = [];
+
+            // 全てのファイルの読み込みをPromiseで管理
+            const filePromises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+                            uploadedFiles.push({
+                                name: file.name,
+                                data: data
+                            });
+                            resolve();
+                        } catch (error) {
+                            console.error(`Error parsing ${file.name}:`, error);
+                            alert(`${file.name} の読み込みに失敗しました。`);
+                            reject(error);
+                        }
+                    };
+                    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+                    reader.readAsText(file);
+                });
+            });
+
+            // 全てのファイルの読み込みを待つ
+            try {
+                await Promise.all(filePromises);
+
+                // ファイル数を更新
+                document.getElementById('uploadedCount').textContent =
+                    `アップロード済み: ${uploadedFiles.length}ファイル`;
+
+                // カテゴリを収集
+                const categories = new Set();
+
+                // 自動的に地図に表示
+                let totalMarkers = 0;
+                uploadedFiles.forEach(file => {
+                    if (file.data.sessions) {
+                        const count = plotData(file.data.sessions, file.name, categories);
+                        totalMarkers += count;
+                    }
+                });
+
+                // レジェンドを更新
+                updateLegend(categories);
+
+                document.getElementById('markerCount').textContent = `マーカー数: ${totalMarkers}`;
+
+                if (totalMarkers > 0) {
+                    map.fitBounds(markersLayer.getBounds(), { padding: [50, 50] });
+                } else {
+                    alert('有効なデータが見つかりませんでした。');
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // 初期読み込み
+        window.onload = () => {
+            document.getElementById('loading').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
