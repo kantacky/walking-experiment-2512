@@ -18,7 +18,7 @@
         }
         .legend {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             right: 10px;
             background: white;
             padding: 15px;
@@ -295,8 +295,8 @@
         // 地図の初期化
         const map = L.map('map').setView([41.79, 140.745], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
         // マーカーを管理するレイヤーグループ
