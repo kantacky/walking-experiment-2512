@@ -115,6 +115,16 @@
             'default': '#95a5a6'
         };
 
+        // セッションごとの色を生成
+        function getSessionColor(sessionIndex) {
+            const colors = [
+                '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
+                '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b',
+                '#d35400', '#8e44ad', '#2980b9', '#27ae60', '#f1c40f'
+            ];
+            return colors[sessionIndex % colors.length];
+        }
+
         // 地図の初期化
         const map = L.map('map').setView([41.79, 140.745], 13);
 
@@ -129,11 +139,15 @@
         let uploadedFiles = [];
 
         // データを地図上にプロット
-        function plotData(sessions, filename, categoriesSet) {
+        function plotData(sessions, filename, categoriesSet, sessionStartIndex = 0) {
             let markerCount = 0;
 
-            sessions.forEach(session => {
+            sessions.forEach((session, sessionLocalIndex) => {
                 if (session.records) {
+                    const sessionIndex = sessionStartIndex + sessionLocalIndex;
+                    const sessionColor = getSessionColor(sessionIndex);
+                    const pathCoordinates = [];
+
                     session.records.forEach(record => {
                         const lat = record.latitude;
                         const lon = record.longitude;
@@ -144,6 +158,9 @@
                         if (categoriesSet) {
                             categoriesSet.add(category);
                         }
+
+                        // 軌跡の座標を追加
+                        pathCoordinates.push([lat, lon]);
 
                         const marker = L.circleMarker([lat, lon], {
                             radius: 6,
@@ -167,6 +184,24 @@
                         marker.addTo(markersLayer);
                         markerCount++;
                     });
+
+                    // セッションの軌跡を線で結ぶ
+                    if (pathCoordinates.length > 1) {
+                        const polyline = L.polyline(pathCoordinates, {
+                            color: sessionColor,
+                            weight: 3,
+                            opacity: 0.7,
+                            smoothFactor: 1
+                        });
+
+                        polyline.bindPopup(`
+                            <strong>ファイル:</strong> ${filename}<br>
+                            <strong>セッションID:</strong> ${session.id}<br>
+                            <strong>レコード数:</strong> ${pathCoordinates.length}
+                        `);
+
+                        polyline.addTo(markersLayer);
+                    }
                 }
             });
 
@@ -265,10 +300,12 @@
 
                 // 自動的に地図に表示
                 let totalMarkers = 0;
+                let sessionStartIndex = 0;
                 uploadedFiles.forEach(file => {
                     if (file.data.sessions) {
-                        const count = plotData(file.data.sessions, file.name, categories);
+                        const count = plotData(file.data.sessions, file.name, categories, sessionStartIndex);
                         totalMarkers += count;
+                        sessionStartIndex += file.data.sessions.length;
                     }
                 });
 
