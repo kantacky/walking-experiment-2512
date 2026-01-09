@@ -18,7 +18,7 @@
         }
         .legend {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             right: 10px;
             background: white;
             padding: 15px;
@@ -26,6 +26,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             z-index: 1000;
             display: none;
+            max-width: 250px;
         }
         .legend.visible {
             display: block;
@@ -45,34 +46,189 @@
             margin-right: 8px;
             border: 2px solid #333;
         }
-        .controls {
+        .sidebar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            bottom: 10px;
+            width: 320px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .sidebar.hidden {
+            transform: translateX(-340px);
+        }
+        .sidebar-toggle {
             position: absolute;
             top: 10px;
             left: 60px;
             background: white;
-            padding: 15px;
+            color: #333;
+            border: none;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            padding: 12px 15px;
+            z-index: 999;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: none;
+            width: 50px;
+            height: 50px;
+            align-items: center;
+            justify-content: center;
         }
-        .controls button {
-            padding: 8px 15px;
+        .sidebar-toggle.visible {
+            display: flex;
+        }
+        .sidebar-toggle:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+        .toggle-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: white;
+            border: 1px solid #ddd;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 8px 12px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .toggle-button:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .sidebar-header {
+            padding: 15px;
+            padding-right: 60px;
+            border-bottom: 2px solid #e0e0e0;
+            background: #f8f9fa;
+            position: relative;
+        }
+        .sidebar-header h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .sidebar-header input[type="file"] {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+            font-size: 12px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .sidebar-stats {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+        .sidebar-stats > div {
+            margin: 5px 0;
+        }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        .sidebar-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .sidebar-content h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .session-controls {
+            margin-bottom: 15px;
+        }
+        .session-controls button {
+            padding: 6px 12px;
             background: #007bff;
             color: white;
             border: none;
             border-radius: 3px;
             cursor: pointer;
-            width: 100%;
-            margin-bottom: 8px;
+            font-size: 12px;
+            margin-right: 5px;
         }
-        .controls button:hover {
+        .session-controls button:hover {
             background: #0056b3;
         }
-        .controls input[type="file"] {
-            margin: 10px 0;
-            padding: 5px;
+        .fit-bounds-button {
             width: 100%;
-            font-size: 12px;
+            padding: 10px 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .fit-bounds-button:hover {
+            background: #218838;
+        }
+        .session-item {
+            margin: 8px 0;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .session-item:hover {
+            background: #f8f9fa;
+        }
+        .session-item label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        .session-item input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .session-item span {
+            flex: 1;
+            word-break: break-all;
+        }
+        .session-color-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: 8px;
+            border: 2px solid #333;
+            flex-shrink: 0;
         }
         #loading {
             position: absolute;
@@ -91,11 +247,22 @@
     <div id="loading">データを読み込んでいます...</div>
     <div id="map"></div>
 
-    <div class="controls">
-        <input type="file" id="fileUpload" accept=".json" multiple onchange="handleFileUpload(event)">
-        <div style="margin-top: 10px; font-size: 12px;">
-            <div id="markerCount">マーカー数: 0</div>
-            <div id="uploadedCount">アップロード済み: 0ファイル</div>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-button" onclick="toggleSidebar()" title="サイドバーを閉じる">«</button>
+            <h3>Walking Experiment Viewer</h3>
+            <input type="file" id="fileUpload" accept=".json" multiple onchange="handleFileUpload(event)">
+            <div class="sidebar-stats">
+                <div id="uploadedCount">アップロード済み: 0ファイル</div>
+                <div id="markerCount">マーカー数: 0</div>
+            </div>
+        </div>
+        <div class="sidebar-content" id="sidebarContent">
+            <div style="color: #999; text-align: center; padding: 20px;">
+                JSONファイルをアップロードしてください
+            </div>
         </div>
     </div>
 
@@ -133,10 +300,11 @@
         }).addTo(map);
 
         // マーカーを管理するレイヤーグループ
-        let markersLayer = L.layerGroup().addTo(map);
+        let markersLayer = L.featureGroup().addTo(map);
 
         // アップロードされたファイルを保存
         let uploadedFiles = [];
+        let allSessions = []; // 全セッション情報を保存
 
         // データを地図上にプロット
         function plotData(sessions, filename, categoriesSet, sessionStartIndex = 0) {
@@ -246,11 +414,111 @@
         // 地図をクリア
         function clearMap() {
             markersLayer.clearLayers();
+            allSessions = [];
             document.getElementById('markerCount').textContent = 'マーカー数: 0';
             const legend = document.getElementById('legend');
             const legendContent = document.getElementById('legendContent');
             legendContent.innerHTML = '';
             legend.classList.remove('visible');
+
+            const sidebarContent = document.getElementById('sidebarContent');
+            sidebarContent.innerHTML = `
+                <div style="color: #999; text-align: center; padding: 20px;">
+                    JSONファイルをアップロードしてください
+                </div>
+            `;
+        }
+
+        // セッション選択UIを更新
+        function updateSessionSelector() {
+            const sidebarContent = document.getElementById('sidebarContent');
+
+            if (allSessions.length === 0) {
+                sidebarContent.innerHTML = `
+                    <div style="color: #999; text-align: center; padding: 20px;">
+                        JSONファイルをアップロードしてください
+                    </div>
+                `;
+                return;
+            }
+
+            sidebarContent.innerHTML = `
+                <button class="fit-bounds-button" onclick="console.log('Fit button clicked'); fitAllMarkers();">📍 全体表示</button>
+                <h4>セッション選択</h4>
+                <div class="session-controls">
+                    <button onclick="selectAllSessions()">全選択</button>
+                    <button onclick="deselectAllSessions()">全解除</button>
+                </div>
+                <div id="sessionList"></div>
+            `;
+
+            const sessionList = document.getElementById('sessionList');
+
+            allSessions.forEach((sessionInfo, index) => {
+                const sessionItem = document.createElement('div');
+                sessionItem.className = 'session-item';
+
+                const label = document.createElement('label');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = true; // デフォルトで選択
+                checkbox.id = `session-${index}`;
+                checkbox.onchange = () => updateMapDisplay();
+
+                const text = document.createElement('span');
+                text.textContent = `${sessionInfo.filename} - ${sessionInfo.session.id}`;
+
+                const colorIndicator = document.createElement('div');
+                colorIndicator.className = 'session-color-indicator';
+                colorIndicator.style.backgroundColor = getSessionColor(sessionInfo.globalIndex);
+
+                label.appendChild(checkbox);
+                label.appendChild(text);
+                label.appendChild(colorIndicator);
+                sessionItem.appendChild(label);
+                sessionList.appendChild(sessionItem);
+            });
+        }
+
+        // 全セッション選択
+        function selectAllSessions() {
+            allSessions.forEach((_, index) => {
+                const checkbox = document.getElementById(`session-${index}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateMapDisplay();
+        }
+
+        // 全セッション解除
+        function deselectAllSessions() {
+            allSessions.forEach((_, index) => {
+                const checkbox = document.getElementById(`session-${index}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            updateMapDisplay();
+        }
+
+        // 地図表示を更新
+        function updateMapDisplay() {
+            markersLayer.clearLayers();
+            const categories = new Set();
+            let totalMarkers = 0;
+
+            allSessions.forEach((sessionInfo, index) => {
+                const checkbox = document.getElementById(`session-${index}`);
+                if (checkbox && checkbox.checked) {
+                    const count = plotData([sessionInfo.session], sessionInfo.filename, categories, sessionInfo.globalIndex);
+                    totalMarkers += count;
+                }
+            });
+
+            updateLegend(categories);
+            document.getElementById('markerCount').textContent = `マーカー数: ${totalMarkers}`;
+
+            if (totalMarkers > 0 && markersLayer.getLayers().length > 0) {
+                map.fitBounds(markersLayer.getBounds(), { padding: [50, 50] });
+            }
         }
 
         // ファイルアップロードを処理
@@ -295,34 +563,64 @@
                 document.getElementById('uploadedCount').textContent =
                     `アップロード済み: ${uploadedFiles.length}ファイル`;
 
-                // カテゴリを収集
-                const categories = new Set();
-
-                // 自動的に地図に表示
-                let totalMarkers = 0;
-                let sessionStartIndex = 0;
+                // 全セッション情報を構築
+                allSessions = [];
+                let globalIndex = 0;
                 uploadedFiles.forEach(file => {
                     if (file.data.sessions) {
-                        const count = plotData(file.data.sessions, file.name, categories, sessionStartIndex);
-                        totalMarkers += count;
-                        sessionStartIndex += file.data.sessions.length;
+                        file.data.sessions.forEach(session => {
+                            allSessions.push({
+                                filename: file.name,
+                                session: session,
+                                globalIndex: globalIndex
+                            });
+                            globalIndex++;
+                        });
                     }
                 });
 
-                // レジェンドを更新
-                updateLegend(categories);
+                // セッション選択UIを更新
+                updateSessionSelector();
 
-                document.getElementById('markerCount').textContent = `マーカー数: ${totalMarkers}`;
+                // 地図を更新
+                updateMapDisplay();
 
-                if (totalMarkers > 0) {
-                    map.fitBounds(markersLayer.getBounds(), { padding: [50, 50] });
-                } else {
+                if (allSessions.length === 0) {
                     alert('有効なデータが見つかりませんでした。');
                 }
             } catch (error) {
                 console.error('Error loading files:', error);
             } finally {
                 loading.style.display = 'none';
+            }
+        }
+
+        // サイドバーの表示/非表示を切り替え
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            sidebar.classList.toggle('hidden');
+            sidebarToggle.classList.toggle('visible');
+        }
+
+        // 全てのマーカーが表示されるように地図を調整
+        function fitAllMarkers() {
+            try {
+                const layers = markersLayer.getLayers();
+                console.log('Layers count:', layers.length);
+
+                if (layers.length > 0) {
+                    const bounds = markersLayer.getBounds();
+                    console.log('Bounds:', bounds);
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                    console.log('Fit bounds completed');
+                } else {
+                    alert('表示するマーカーがありません。');
+                }
+            } catch (error) {
+                console.error('Error in fitAllMarkers:', error);
+                alert('エラーが発生しました: ' + error.message);
             }
         }
 
